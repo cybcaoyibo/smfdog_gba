@@ -1,4 +1,4 @@
-#ffmpeg -i smfdog.gif -f rawvideo smgdog.bin
+#ffmpeg -i smfdog.gif -f rawvideo smfdog.bin
 g++ -o imgconv imgconv.cpp -std=c++0x
 ./imgconv
 arm-none-eabi-gcc -c -o smfdog.o smfdog.c
