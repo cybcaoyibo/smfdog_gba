@@ -1,7 +1,7 @@
 SECTIONS {
 	. = 0x08000000;
 	.text : { * (.text) }
-	.rdata : { * (.rdata) }
+	.data : { * (.data) }
 	.bss : { * (.bss) }
 }
 ENTRY(entry)
