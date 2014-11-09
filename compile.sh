@@ -1,3 +1,5 @@
+#by CYB(cybcaoyibo@126.com)
+
 #ffmpeg -i smfdog.gif -f rawvideo smfdog.bin
 g++ -o imgconv imgconv.cpp -std=c++0x
 ./imgconv

@@ -1,3 +1,5 @@
+/* by CYB(cybcaoyibo@126.com) */
+
 .text
 .globl entry
 entry:

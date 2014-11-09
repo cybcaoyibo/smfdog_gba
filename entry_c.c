@@ -1,3 +1,5 @@
+/* by CYB(cybcaoyibo@126.com) */
+
 #include <stdint.h>
 #include <math.h>
 
