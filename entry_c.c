@@ -77,19 +77,40 @@ void init_lcd() {
 	install_smfdog_tile();
 }
 
+void init_irq() {
+	*(uint16_t*)0x04000004 = 0x0008;
+	*(uint16_t*)0x04000200 = 0x0001;
+}
+
+uint8_t irq_fired;
+
+void irq_handler() {
+	if(*(volatile uint16_t*)0x04000202 & 0x0001) {
+		irq_fired = 1;
+		*(uint32_t*)0x04000208 = 0;
+		*(uint32_t*)0x03007FF8 |= 0x0001;
+		*(uint16_t*)0x04000202 = 0x0001;
+	}
+}
+
 float pi;
 float ang;
+
+void wait();
 
 void entry_c() {
 	ang = 0;
 	pi = acos(-1);
 	init_lcd();
+	init_irq();
 	while(1) {
-		while((*(volatile uint16_t*)0x04000006 & 0xff) < 160);
-		uint16_t key = *(volatile uint16_t*)0x04000130;
-		
-		ang += 0.01;
-		ang = fmod(ang, 2 * pi);
-		install_smfdog_obj(cos(ang) * 40 + 40, sin(ang * 2) * 40 + 40);
+		irq_fired = 0;
+		wait();
+		if(irq_fired == 1) {
+			uint16_t key = *(volatile uint16_t*)0x04000130;
+			ang += 0.05;
+			ang = fmod(ang, 2 * pi);
+			install_smfdog_obj(cos(ang) * 40 + 40, sin(ang * 2) * 40 + 40);
+		}
 	}
 }

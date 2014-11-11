@@ -39,7 +39,25 @@ entry:
 	
 	/* reversed */
 	.byte 0x00, 0x00
-	
+
+.arm
 entry_t:
+	ldr r0, =0x03007ffc
+	ldr r1, =irq_entry
+	str r1, [r0]
 	ldr ip, =(entry_c + 1)
 	bx ip
+
+.arm
+irq_entry:
+	ldr ip, =(irq_handler + 1)
+	bx ip
+
+.thumb
+.globl wait
+wait:
+	ldr r0, =0x04000200
+	ldr r1, [r0]
+	mov r0, #1
+	swi 0x04
+	bx lr
