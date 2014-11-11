@@ -57,7 +57,7 @@ irq_entry:
 .globl wait
 wait:
 	ldr r0, =0x04000200
-	ldr r1, [r0]
+	ldrh r1, [r0]
 	mov r0, #1
 	swi 0x04
 	bx lr

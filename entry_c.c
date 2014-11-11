@@ -35,9 +35,9 @@ void install_smfdog_tile() {
 	}
 }
 
-void install_smfdog_obj(int8_t x, int8_t y) {
+void install_smfdog_obj(int16_t x, int8_t y, uint8_t facing) {
 	*(uint16_t*)0x07000000 = 0x2000 | y;
-	*(uint16_t*)0x07000002 = 0xC000 | x;
+	*(uint16_t*)0x07000002 = 0xC000 | (x & 0x1FF) | (facing ? (1 << 12) : 0);
 	*(uint16_t*)0x07000004 = 0x0000;
 }
 
@@ -93,24 +93,59 @@ void irq_handler() {
 	}
 }
 
-float pi;
-float ang;
-
 void wait();
+float x, y, vx, vy;
+uint8_t facing;
 
 void entry_c() {
-	ang = 0;
-	pi = acos(-1);
 	init_lcd();
+	x = 0;
+	y = 0;
+	vx = 0;
+	vy = 0;
+	facing = 0;
 	init_irq();
 	while(1) {
 		irq_fired = 0;
 		wait();
 		if(irq_fired == 1) {
 			uint16_t key = *(volatile uint16_t*)0x04000130;
-			ang += 0.05;
-			ang = fmod(ang, 2 * pi);
-			install_smfdog_obj(cos(ang) * 40 + 40, sin(ang * 2) * 40 + 40);
+			
+			x += vx;
+			y += vy;
+			
+			vy += 0.1;
+			if(y >= 160 - 64) {
+				y = 160 - 64;
+				vy = 0;
+				if(!(key & (1 << 0)) || !(key & (1 << 1)))
+					vy = -3;
+			}
+			
+			if(!(key & (1 << 5)))
+				vx -= 0.2;
+			if(!(key & (1 << 4)))
+				vx += 0.2;
+			if(vx < -5)
+				vx = -5;
+			if(vx > 5)
+				vx = 5;
+			if(x < 0) {
+				x = 0;
+				vx = 0;
+			}
+			if(x > 240 - 64) {
+				x = 240 - 64;
+				vx = 0;
+			}
+			if(vx > 1)
+				facing = 0;
+			if(vx < -1)
+				facing = 1;
+			
+			vx *= 0.95;
+			
+			install_smfdog_obj(x, y, facing);
 		}
 	}
 }
