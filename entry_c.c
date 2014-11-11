@@ -2,11 +2,13 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <malloc.h>
 
 //lcd size = 240*160
 //buffer size = 256*256
 //map offset = 0x4000
 //tile offset = 0x0000
+//stack bottom = 0x03007F00
 
 extern uint8_t smfdog_palette[];
 extern uint8_t smfdog_tile[];
@@ -73,18 +75,21 @@ void init_lcd() {
 	//smfdog
 	install_smfdog_palette();
 	install_smfdog_tile();
-	install_smfdog_obj(20, 20);
 }
 
+float pi;
+float ang;
+
 void entry_c() {
+	ang = 0;
+	pi = acos(-1);
 	init_lcd();
-	float ang = 0;
-	float pi = acos(-1);
 	while(1) {
+		while((*(volatile uint16_t*)0x04000006 & 0xff) < 160);
+		uint16_t key = *(volatile uint16_t*)0x04000130;
+		
 		ang += 0.01;
 		ang = fmod(ang, 2 * pi);
-		install_smfdog_obj(cos(ang) * 40 + 40, 20);
-		int i;
-		for(i = 0; i < 1000; i++);
+		install_smfdog_obj(cos(ang) * 40 + 40, sin(ang * 2) * 40 + 40);
 	}
 }
